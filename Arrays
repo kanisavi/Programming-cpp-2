@@ -1,0 +1,322 @@
+#include <iostream>
+#include <chrono>
+
+using namespace std;
+using namespace chrono;
+
+const int N = 100;               // Кол-во элементов в массиве
+
+void BubbleSort(int* array) {    // Пузырьковая сортировка
+	for (int i = 0; i < N - 1; i++) {
+		int sorted = 1;
+		for (int j = 0; j < N - i - 1; j++) {
+			if (array[j] > array[j + 1]) {
+				sorted = 0;
+				swap(array[j], array[j + 1]);
+			}
+		}
+		if (sorted)       // Если sorted = 1, значит массив отсортирован
+			break;
+	}
+}
+void ShakerSort(int* array) {   // Шейкер-сортировка
+	int left = 0;       // Левая граница
+	int right = N - 1;  // Правая граница
+	int sorted = 1;
+	while ((left < right) and (sorted == 1)) {  // Цикл выполняется, пока границы не сомкнулись или массив не отсортирован
+		sorted = 0;
+		for (int i = left; i < right; i++) {  // Сортировка слева
+			if (array[i] > array[i + 1]) {
+				swap(array[i], array[i + 1]);
+				sorted = 1;
+			}
+		}
+		right --;        // Сдвиг правой границы
+		for (int i = right; i > left; i--) {   // Сортировка справа
+			if (array[i - 1] > array[i]) {
+				swap (array[i - 1], array[i]);
+				sorted = 1;
+			}
+		}
+		left++;         // Сдвиг левой границы
+	}
+}
+void CombSort(int* array) {    // Сортировка расчёской
+	const float k = 1.247;     // Константа для определения расстояния между сравниваемыми элементами
+	int gap = N;
+	while (gap > 1) {         // Цикл выполняется, пока расстояние между элементами больше 1
+		gap /= k;
+		for (int i = 0; i < N - gap; i++) {
+			if (array[i] > array[i + gap])
+				swap(array[i], array[i + gap]);
+		}
+	}
+}
+void InsertSort(int* array) {       // Сортировка вставками
+	for (int i = 1; i < N; i++) {   // Сравнение элемента с предыдущими
+		for (int j = i; j > 0; j--) {
+			if (array[j - 1] > array[j])
+				swap(array[j - 1], array[j]);
+		}
+	}
+}
+void QuickSort(int* array, int begin, int end) {  // Быстрая сортировка
+	int left = begin;     
+	int right = end;
+	int mid = array[(left + right) / 2];    // Опорный элемент
+	while (left < right) {    
+		while (array[left] < mid) left++;   // Пока левый элемент меньше опорного, сдвигается вправо
+		while (array[right] > mid) right--; // Пока правый элемент больше опорного, сдвигается влево
+		if (left <= right) { 
+			swap(array[left], array[right]); 
+			left++;
+			right--;
+		}
+	}
+	if (begin < right)
+		QuickSort(array, begin, right);    // Сортировка правой части
+	if (left < end)
+		QuickSort(array, left, end);       // Сортировка левой части
+}
+
+int main() {
+	setlocale(0, "Rus");
+	int arr[N], arr_sort[N], i, chislo;
+	int op1 = 0, op2 = 0;
+	int MaxNum = -100;
+	int MinNum = 100;
+	cout << " Меню: \n\
+ 1 - Создать целочисленный массив размерности 100. Элементы массива принимают случайное значение от -99 до 99. \n\
+ 2 - Отсортировать созданный массив от меньшего к большему. \n\
+ 3 - Найти max и min элемент массива. \n\
+ 4 - Найти среднее значение max и min элемента массива. Вывести индексы элементов, равных этому значению, и их кол-во. \n\
+ 5 - Вывести кол-во элементов в массиве, которые меньше числа a, введённого пользователем. \n\
+ 6 - Вывести кол-во элементов в массиве, которые больше числа b, введённого пользователем. \n\
+ 7 - Вывести информацию о том, есть ли введенное пользователем число в массиве. \n\
+ 8 - Поменять местами элементы массива, индексы которых вводит пользователь. \n\
+ 9 - Завершить программу. \n";
+	cout << "\nВведите число от 1 до 9: ";
+	cin >> chislo;                           // Вводим номер операции
+	while (chislo != 9) {                    // Пока номер не = 9, программа выполняется
+		if ((chislo < 1) or (chislo > 9)) {  // Проверяем, есть ли введённое число среди номеров допустимых операций
+			cout << "Такой операции не существует.";
+		}
+		else if (chislo == 1) {
+			op1++;                          // Признак выполнения 1-ой операции. Подсчитывает, сколько раз она была вызвана
+			for (i = 0; i < N; i++) {
+				arr[i] = (rand() % 199) - 99; // Присваиваем каждому элементу массива случайное число от -99 до 99
+				cout.width(3);
+				cout << arr[i] << " ";
+				if (((i + 1) % 25 == 0) and (i != 99)) // Оформление вывода
+					cout << "\n";
+			}
+		}
+		else if (op1 == 0)                   // Проверяем, был ли создан массив
+			cout << "Массив не создан. Введите 1 для создания массива";
+		else if (chislo == 2) {
+			op2 = op1;                      // Признак выполнения 2-ой операции после 1-ой
+			int num;
+			for (i = 0; i < N; i++)
+				arr_sort[i] = arr[i];
+			cout << "Типы сортировок:\n\
+ 1 - Пузырьковая (Bubble sort)\n\
+ 2 - Шейкер (Shaker sort)\n\
+ 3 - Расчёской (Comb sort)\n\
+ 4 - Вставками (Insert Sort)\n\
+ 5 - Быстрая (Quick sort)\n\
+ Введите номер сортировки: ";
+			cin >> num;
+			if (num == 1) {   // Пузырьковая сортировка с подсчётом времени
+				time_point<steady_clock, duration<__int64, ratio<1, 1000000000>>> start, end;
+				nanoseconds result;
+				start = steady_clock::now();
+				BubbleSort(arr_sort);
+				end = steady_clock::now();
+				result = duration_cast<nanoseconds>(end - start);
+				cout << "\nВремя сортировки: " << result.count() << " наносекунд.\n";
+			}
+			if (num == 2) {    // Шейкер-сортировка с подсчётом времени
+				time_point<steady_clock, duration<__int64, ratio<1, 1000000000>>> start, end;
+				nanoseconds result;
+				start = steady_clock::now();
+				ShakerSort(arr_sort);
+				end = steady_clock::now();
+				result = duration_cast<nanoseconds>(end - start);
+				cout << "\nВремя сортировки: " << result.count() << " наносекунд.\n";
+			}
+			if (num == 3) {     // Сортировка расчёской с подсчётом времени
+				time_point<steady_clock, duration<__int64, ratio<1, 1000000000>>> start, end;
+				nanoseconds result;
+				start = steady_clock::now();
+				CombSort(arr_sort);
+				end = steady_clock::now();
+				result = duration_cast<nanoseconds>(end - start);
+				cout << "\nВремя сортировки: " << result.count() << " наносекунд.\n";
+			}
+			if (num == 4) {     // Сортировка вставками с подсчётом времени
+				time_point<steady_clock, duration<__int64, ratio<1, 1000000000>>> start, end;
+				nanoseconds result;
+				start = steady_clock::now();
+				InsertSort(arr_sort);
+				end = steady_clock::now();
+				result = duration_cast<nanoseconds>(end - start);
+				cout << "\nВремя сортировки: " << result.count() << " наносекунд.\n";
+			}
+			if (num == 5) {      // Быстрая сортировка с подсчётом времени
+				time_point<steady_clock, duration<__int64, ratio<1, 1000000000>>> start, end;
+				nanoseconds result;
+				start = steady_clock::now();
+				QuickSort(arr_sort, 0, N - 1);
+				end = steady_clock::now();
+				result = duration_cast<nanoseconds>(end - start);
+				cout << "\nВремя сортировки: " << result.count() << " наносекунд.\n";
+			}
+			for (i = 0; i < N; i++) {          // Вывод отсортированного массива
+				cout.width(3);
+				cout << arr_sort[i] << " ";
+				if (((i + 1) % 25 == 0) and (i != 99))
+					cout << "\n";
+			}
+		}
+		else if (((op2 == 0) or (op2 != op1)) and (chislo != 1))   // Проверяем, был ли отсортирован созданный массив
+			cout << "Массив не отсортирован. Введите 2 для сортировки массива.";
+		else if (chislo == 3) {
+			time_point<steady_clock, duration<__int64, ratio<1, 1000000000>>> start, end;
+			nanoseconds result;
+			start = steady_clock::now();
+			for (i = 0; i < N; i++) {       // Находим max и min элементы в неотсортированном массиве
+				if (arr[i] > MaxNum) {
+					MaxNum = arr[i];
+				}
+				if (arr[i] < MinNum) {
+					MinNum = arr[i];
+				}
+			}
+			end = steady_clock::now();
+			result = duration_cast<nanoseconds>(end - start);
+			cout << "Max элемент массива: " << MaxNum;
+			cout << "\nMin элемент массива: " << MinNum;
+			cout << "\nВремя поиска в неотсортированном массиве: " << result.count() << " наносекунд.";
+			time_point<steady_clock, duration<__int64, ratio<1, 1000000000>>> start_sort, end_sort;
+			nanoseconds result_sort;
+			start_sort = steady_clock::now();
+			MinNum = arr_sort[0];            // Находим max и min элементы в отсортированном массиве
+			MaxNum = arr_sort[99];
+			end_sort = steady_clock::now();
+			result_sort = duration_cast<nanoseconds>(end_sort - start_sort);
+			cout << "\nВремя поиска в отсортированном массиве: " << result_sort.count() << " наносекунд.";
+		}
+		else if (chislo == 4) {
+			MinNum = arr_sort[0];
+			MaxNum = arr_sort[99];
+			int kol = 0;
+			float Average = float(MaxNum + MinNum) / 2.0;   // Находим среднее значение max и min элемента массива
+			int RoundAverage = int(ceil(Average));          // Округляем среднее значение
+			cout << "Среднее значение max и min элемента массива (округлённое): " << RoundAverage;
+			cout << "\nИндексы элементов = сред. значению в неотсортированном массиве: ";
+			for (i = 0; i < N; i++) {
+				if (arr[i] == RoundAverage) {    // Находим индексы элементов, = среднему значению, в неотсортированном массиве
+					cout << i << " ";
+					kol++;
+				}
+			}
+			cout << "\nИндексы элементов = сред.значению в отсортированном массиве: ";
+			for (i = 0; i < N; i++) {
+				if (arr_sort[i] == RoundAverage) {  // Находим индексы элементов, = среднему значению, в отсортированном массиве
+					cout << i << " ";
+				}
+			}
+			cout << "\nКол-во элементов = сред.значению: " << kol;
+		}
+		else if (chislo == 5) {
+			cout << "Введите число а: ";
+			int a, k = 0;
+			cin >> a;                   // Вводим число а
+			for (i = 0; i < N; i++) {
+				if (arr_sort[i] < a)    // Находим кол-во элементов, которые < введённого числа а
+					k++;
+			}
+			cout << "Кол-во элементов < a: " << k;
+		}
+		else if (chislo == 6) {
+			cout << "Введите число b: ";
+			int b, k = 0;
+			cin >> b;                   // Вводим число b
+			for (i = 0; i < N; i++) {
+				if (arr_sort[i] > b)    // Находим кол-во элементов, которые > введённого числа b
+					k++;
+			}
+			cout << "Кол-во элементов > b: " << k;
+		}
+		else if (chislo == 7) {
+			int SearchNum;
+			cout << "Введите число для поиска: ";
+			cin >> SearchNum;                  // Вводим число для поиска в массиве
+			int found = 0;
+			int now = N / 2, move = N / 4, att = int(ceil(log2(N))); // Индекс центр. элемента, начальный шаг и max кол-во попыток
+			time_point<steady_clock, duration<__int64, ratio<1, 1000000000>>> start_bin, end_bin;
+			nanoseconds result_bin;
+			start_bin = steady_clock::now();
+			for (int k = 0; k < att; k++) {  
+				if (arr_sort[now] == SearchNum) {  // Проверяем, равен ли текущий элемент введённому числу
+					found = 1;                     
+				}
+				if (arr_sort[now] > SearchNum)     // Если элемент больше, то сдвигаемся влево на 1/2 оставшейся слева части массива
+					now -= move;
+				if (arr_sort[now] < SearchNum)     // Если элемент меньше, то сдвигаемся вправо на 1/2 оставшейся справа части массива
+					now += move;
+				move = move / 2 + 1;               // Уменьшаем шаг
+			}
+			end_bin = steady_clock::now();
+			result_bin = duration_cast<nanoseconds>(end_bin - start_bin);
+			time_point<steady_clock, duration<__int64, ratio<1, 1000000000>>> start_per, end_per;
+			nanoseconds result_per;
+			start_per = steady_clock::now();
+			for (int l = 0; l < N; l++) {
+				if (arr_sort[l] == SearchNum) {  // Делаем перебор всех элементов массива и сравниваем с введённым числом
+					found = 1;
+				}
+			}
+			end_per = steady_clock::now();
+			result_per = duration_cast<nanoseconds>(end_per - start_per);
+			if (found == 0)
+				cout << "Введённого числа нет в массиве.\n";
+			else
+				cout << "Введённое число есть в массиве.\n";
+			cout << "Время бинарного поиска: " << result_bin.count() << " наносекунд.\n";
+			cout << "Время поиска обычным перебором: " << result_per.count() << " наносекунд.";
+		}
+		else if (chislo == 8) {
+			int index1, index2;
+			cout << "Введите индексы элементов, которые хотите поменять местами.\n";
+			cout << "Индекс 1-го элемента: ";          // Вводим индексы элементов, которые хотим поменять местами
+			cin >> index1;
+			while ((index1 < 0) or (index1 > 99)) {
+				cout << "Элемента с таким индексом нет в массиве\n" << "Индекс 1-го элемента: ";
+				cin >> index1;
+			}
+			cout << "Индекс 2-го элемента: ";
+			cin >> index2;
+			while ((index2 < 0) or (index2 > 99)) {
+				cout << "Элемента с таким индексом нет в массиве\n" << "Индекс 2-го элемента: ";
+				cin >> index2;
+			}
+			time_point<steady_clock, duration<__int64, ratio<1, 1000000000>>> start, end;
+			nanoseconds result;
+			start = steady_clock::now();
+			swap(arr_sort[index1], arr_sort[index2]);   // Меняем элементы местами
+			end = steady_clock::now();
+			result = duration_cast<nanoseconds>(end - start);
+			cout << "Обмен завершён.\n" << "Скорость обмена: " << result.count() << " наносекунд.\n" << "Текущий массив: \n";
+			for (i = 0; i < N; i++) {                // Вывод текущего массива после обмена
+				cout.width(3);
+				cout << arr_sort[i] << " ";
+				if (((i + 1) % 25 == 0) and (i != 99))
+					cout << "\n";
+			}
+		}
+		cout << "\n\nВведите число от 1 до 9: ";
+		cin >> chislo;            // Снова вводим число после выполнения операции
+	}
+	return 0;
+}
